@@ -3,17 +3,17 @@ import { Item } from "./interfaces/story";
 import EventEmitter from "events";
 import _ from "lodash";
 
-export default class InstagramStoryWatching {
+export default class InstagramStoryWatching extends EventEmitter {
     private http_request = new HttpRequest();
     public last_story: Item | null = null;
     private frist_run: boolean = false;
     private history_id: string[] = [];
-    public events: EventEmitter = new EventEmitter();
 
     private url: string = "";
     private cookie: string = "";
 
     constructor(url: string, cookie: string) {
+        super();
         this.cookie = cookie;
         this.url = url;
         this.getData();
@@ -26,7 +26,7 @@ export default class InstagramStoryWatching {
             if (res.data.reel !== null && this.last_story === null) {
                 this.last_story = last_data as Item;
                 if (this.frist_run) {
-                    this.events.emit("item", last_data);
+                    this.emit("item", last_data);
                     this.history_id.push(last_data?.id as string);
                 }
                 this.frist_run = true;
@@ -38,7 +38,7 @@ export default class InstagramStoryWatching {
                             (last_data as Item).id as string
                         )
                     ) {
-                        this.events.emit("item", last_data);
+                        this.emit("item", last_data);
                         this.last_story = last_data as Item;
                         this.history_id.push(last_data?.id as string);
                     }
